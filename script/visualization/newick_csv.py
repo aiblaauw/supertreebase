@@ -54,12 +54,22 @@ def main():
 	
 	intnode_tree = get_intnode_tree(args.i)
 
+
+	node_score_file = args.i.replace(".tre", ".treesplit")
+	node_score_dict = dict()
+	for l in open(node_score_file):
+		l = l.strip()
+		nodename = l.split("\t")[0][:-1]
+		score = l.split("\t")[-1][1:]
+		node_score_dict[nodename] = score
+
+
 	tree2 = dendropy.Tree.get(
         data=intnode_tree,
         schema="newick",
         suppress_internal_node_taxa=False)
 
-	print("name,parent")
+	print("name,parent,score")
 
 	nonecount = 0
 	for node in tree2.preorder_node_iter():
@@ -67,9 +77,14 @@ def main():
 		if parent:			
 			n = str(node.taxon)[1:-1]
 			p = str(parent.taxon)[1:-1]
-			print(n + "," + p)
+			s = " "
+			if n in node_score_dict:
+				s = str( node_score_dict[n] )
+				if s == "None":
+					print(n + "," + p + ", ")
+			print(n + "," + p + "," + s)
 		else:
-			print(str(node.taxon)[1:-1])
+			print(str(node.taxon)[1:-1] + ", , ")
 
 	
 if __name__ == "__main__":
